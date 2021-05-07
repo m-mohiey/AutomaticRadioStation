@@ -27,14 +27,18 @@ if os.path.exists('twashee7.pkl'):
     with open('twashee7.pkl', 'rb') as f:
         twashee7 = pickle.load(f)
 else:
-    twashee7 =  requests.get('https://archive.org/download/moharram1965_gmail_032/moharram1965_gmail_032_vbr.m3u').text.strip().split('\n')
-    twashee7 = [Media(t) for t in twashee7]
+    # twashee7 =  requests.get('https://archive.org/download/moharram1965_gmail_032/moharram1965_gmail_032_vbr.m3u').text.strip().split('\n')
+    # twashee7 = [Media(t) for t in twashee7]
+    twashee7_path = r"D:\Twashee7"
+    twashee7 = [Media(os.path.join(twashee7_path, p)) for p in os.listdir(twashee7_path)]
     with open('twashee7.pkl', 'wb') as f:
         pickle.dump(twashee7, f)
 
 quran_max_duration = max([q.duration for q in quran])
 quran = cycle(quran)
 print(random.choice(azans))
+
+for _ in range(random.randint(0, 50)): next(quran)
 
 # media = Media('https://archive.org/download/dr_abohabiba_yahoo/%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%D8%A3%D8%A8%D9%88%20%D8%A7%D9%84%D8%B9%D9%8A%D9%86%D9%8A%D9%86%20%D8%B4%D8%B9%D9%8A%D8%B4%D8%B9%20-%20%D8%A7%D9%84%D8%A3%D8%B0%D8%A7%D9%86.mp3')
 geolocation = requests.get('https://ipinfo.io/').json()
@@ -60,9 +64,9 @@ kotof_time = datetime.fromisoformat(f"{date.today().isoformat()} {prayer['midnig
 kotof_program = Program(kotof_media, kotof_time, Priority.MEDIUM, 'Kotof')
 schedule.insert_at(kotof_program)
 
-url = r"D:\Telawat\06. التلاوة الرهيبة(النجم والقمر) لإمام المقرئين🌎 مصطفي اسماعيل _ mustafa ismaeil _ Al-Najm & Al-Qamar.m4a"
-
-telawa_media = Media(url)
+telawa_path = r"D:\Telawat"
+telawas = [os.path.join(telawa_path, p) for p in os.listdir(telawa_path)]
+telawa_media = Media(random.choice(telawas))
 telawa_time = datetime.now() + timedelta(minutes=30)
 telawa_program = Program(telawa_media, telawa_time, Priority.MEDIUM, 'telawa')
 schedule.insert_at(telawa_program)
@@ -82,11 +86,11 @@ while True:
     except ProgramScheduleConflictException:
         twashee7_remain = [(remain - t.duration).total_seconds() if (remain - t.duration).total_seconds() > 0 else 99999 for t in twashee7]
         twashee7_media = twashee7[twashee7_remain.index(min(twashee7_remain))]
-        twashee7_program = Program(twashee7_media, start, Priority.LOW, 'twashee7')
+        twashee7_program = Program(twashee7_media, start + schedule.MAX_SILENCE, Priority.LOW, 'twashee7')
         try:
             schedule.insert_at(twashee7_program)
         except ProgramScheduleConflictException:
-            twashee7_program.duration = remain - timedelta(seconds=1)
+            twashee7_program.duration = remain - timedelta(seconds=2)
             schedule.insert_at(twashee7_program)
 
 
@@ -105,14 +109,14 @@ for m in schedule.play_next():
     # if p:
     #     p.terminate()
     # p = subprocess.Popen(f'ffplay -hide_banner -autoexit -nodisp -i "{m.media.path}"', stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-    if m.priority in [Priority.CRITICAL, Priority.HIGH]:
+    if m.priority in [Priority.CRITICAL, Priority.HIGH Priority.MEDIUM]:
         print('Stopping previuos program')
         player.stop()
     player.open(m)
     player.play()
     if m.priority in [Priority.CRITICAL, Priority.HIGH]:
         # p.wait()
-        time.sleep(1)
+        # time.sleep(1)
         player.wait()
         print('Waiting for Critical Program End')
     print(m.name, ' - ', m.media.title, '===', m)

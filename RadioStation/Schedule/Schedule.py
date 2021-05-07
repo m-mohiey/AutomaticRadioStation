@@ -6,7 +6,7 @@ class Schedule:
     def __init__(self):
         self._lst = list()
         self._position = None
-        self.MAX_SILENCE = timedelta(seconds=2)
+        self.MAX_SILENCE = timedelta(seconds=5)
         self.SAFE_GAURD = timedelta(seconds=1)
 
     def __repr__(self):

@@ -18,7 +18,7 @@ class Program:
         self._duration = None
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({os.path.basename(self.media.path)}, {self.start}, {self.priority}, {self.name})'
+        return f'{self.__class__.__name__}({os.path.basename(self.media.path)}, {self.start} -> {self.end}, {self.priority}, {self.name})'
         
     @property
     def idx(self) -> float:
